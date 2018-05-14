@@ -3,7 +3,7 @@
   ReadableMap (by React Native), Map<String, Object>, and JSONObject.
  */
 
-package com.iodine.start;
+package com.rtmp_android;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReadableMap;
@@ -22,6 +22,8 @@ import org.json.JSONException;
 public class MapUtil {
 
   public static JSONObject toJSONObject(ReadableMap readableMap) throws JSONException {
+    
+    try {
     JSONObject jsonObject = new JSONObject();
 
     ReadableMapKeySetIterator iterator = readableMap.keySetIterator();
@@ -53,13 +55,21 @@ public class MapUtil {
     }
 
     return jsonObject;
+    } catch (JSONException e) {
+      System.out.println("json error");
+      return null;
+    }
   }
 
   public static Map<String, Object> toMap(JSONObject jsonObject) throws JSONException {
-    Map<String, Object> map = new HashMap<>();
-    Iterator<String> iterator = jsonObject.keys();
+    
+    try{    
+      Map<String, Object> map = new HashMap<>();
+      Iterator<String> iterator = jsonObject.keys();
 
-    while (iterator.hasNext()) {
+
+  
+       while (iterator.hasNext()) {
       String key = iterator.next();
       Object value = jsonObject.get(key);
 
@@ -72,11 +82,18 @@ public class MapUtil {
 
       map.put(key, value);
     }
-
     return map;
+
+    } catch (JSONException e) {
+      System.out.println("json error");
+      return null;
+    }
+   
+
   }
 
   public static Map<String, Object> toMap(ReadableMap readableMap) {
+
     Map<String, Object> map = new HashMap<>();
     ReadableMapKeySetIterator iterator = readableMap.keySetIterator();
 
@@ -107,6 +124,11 @@ public class MapUtil {
     }
 
     return map;
+
+    // } catch (JSONException e) {
+    //   System.out.println("json error");
+    //   return null;
+    // }
   }
 
   public static WritableMap toWritableMap(Map<String, Object> map) {

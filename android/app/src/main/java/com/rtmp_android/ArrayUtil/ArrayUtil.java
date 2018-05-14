@@ -4,7 +4,7 @@
  */
 
 
-package com.iodine.start;
+package com.rtmp_android;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReadableArray;

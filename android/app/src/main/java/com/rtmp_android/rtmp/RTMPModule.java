@@ -9,12 +9,14 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
 import com.pedro.builder.RtmpBuilder;
 
-import com.iodine.start;
 
 import net.ossrs.rtmp.ConnectCheckerRtmp;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import org.json.JSONObject;
+import org.json.JSONException;
 
 public class RTMPModule extends ReactContextBaseJavaModule {
     private static RTMPSurfaceView surfaceView;
@@ -54,21 +56,30 @@ public class RTMPModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void changeSettings(Object settings, Promise promise) {
+    public void changeSettings(JSONObject settings, Promise promise) {
         // Toast.makeText(getReactApplicationContext(), message, Toast.LENGTH_SHORT).show();
         // Toast.makeText(getReactApplicationContext(), Integer.toString(settingsType), Toast.LENGTH_SHORT).show();
-        MapUtil.toMap(settings);
+        // MapUtil.toMap(settings);
 
-        Toast.makeText(getReactApplicationContext(), Integer.toString(settingsType), Toast.LENGTH_SHORT).show();
+        // Toast.makeText(getReactApplicationContext(), Integer.toString(settingsType), Toast.LENGTH_SHORT).show();
         if (rtmpBuilder != null && rtmpBuilder.isStreaming()) {
             rtmpBuilder.stopStream();
-            this.startStream(url, promise, MapUtil.toMap(settings));
+            try{
+            this.startStreamWithParams(url, promise, MapUtil.toMap(settings));
+            } catch (JSONException e) {
+              System.out.println("json error");
+            }
         } 
         promise.resolve(rtmpBuilder.isStreaming());
     }
 
     public void startStreamWithParams(String rtmpUrl, Promise promise, Map params) {
-        Toast.makeText(getReactApplicationContext(), params.get("width"), Toast.LENGTH_SHORT).show();
+        // Toast.makeText(getReactApplicationContext(), params.get("width"), Toast.LENGTH_SHORT).show();
+        
+        // for (params.Entry<String, Integer> me : set) {
+        //     System.out.print(me.getKey() + ": ");
+        //     System.out.println(me.getValue());
+        // }
         if (isSurfaceCreated) {
             
             if (rtmpBuilder != null && !rtmpBuilder.isStreaming() && rtmpBuilder.prepareAudio()
