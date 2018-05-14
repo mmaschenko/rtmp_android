@@ -6,7 +6,10 @@ import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.ReadableMap;
 import com.pedro.builder.RtmpBuilder;
+
+import com.iodine.start;
 
 import net.ossrs.rtmp.ConnectCheckerRtmp;
 
@@ -17,6 +20,16 @@ public class RTMPModule extends ReactContextBaseJavaModule {
     private static RTMPSurfaceView surfaceView;
     private static RtmpBuilder rtmpBuilder;
     private static boolean isSurfaceCreated;
+
+    private String url = "";
+
+    private int width = 640;
+    private int height = 480;
+    private int fps = 30;
+    private int bitRate = 300 * 1024; // in kbps
+    private int rotation = 90;
+    private int iFrameInterval = 4;
+    private boolean hardwareRotation = false;
 
     public RTMPModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -30,6 +43,8 @@ public class RTMPModule extends ReactContextBaseJavaModule {
     @Override
     public Map<String, Object> getConstants() {
         final Map<String, Object> constants = new HashMap<>();
+        constants.put("width", height);
+        constants.put("height", height);
         return constants;
     }
 
@@ -39,9 +54,43 @@ public class RTMPModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void startStream(String rtmpUrl, Promise promise) {
+    public void changeSettings(Object settings, Promise promise) {
+        // Toast.makeText(getReactApplicationContext(), message, Toast.LENGTH_SHORT).show();
+        // Toast.makeText(getReactApplicationContext(), Integer.toString(settingsType), Toast.LENGTH_SHORT).show();
+        MapUtil.toMap(settings);
+
+        Toast.makeText(getReactApplicationContext(), Integer.toString(settingsType), Toast.LENGTH_SHORT).show();
+        if (rtmpBuilder != null && rtmpBuilder.isStreaming()) {
+            rtmpBuilder.stopStream();
+            this.startStream(url, promise, MapUtil.toMap(settings));
+        } 
+        promise.resolve(rtmpBuilder.isStreaming());
+    }
+
+    public void startStreamWithParams(String rtmpUrl, Promise promise, Map params) {
+        Toast.makeText(getReactApplicationContext(), params.get("width"), Toast.LENGTH_SHORT).show();
         if (isSurfaceCreated) {
-            if (rtmpBuilder != null && !rtmpBuilder.isStreaming() && rtmpBuilder.prepareAudio() && rtmpBuilder.prepareVideo()) {
+            
+            if (rtmpBuilder != null && !rtmpBuilder.isStreaming() && rtmpBuilder.prepareAudio()
+                    && rtmpBuilder.prepareVideo(width, height, fps, bitRate, hardwareRotation, rotation)) {
+                rtmpBuilder.startStream(rtmpUrl);
+            } else {
+                Toast.makeText(getReactApplicationContext(), "Failed to preparing RTMP builder.", Toast.LENGTH_SHORT)
+                        .show();
+            }
+        } else {
+            Toast.makeText(getReactApplicationContext(), "Surface view is not ready.", Toast.LENGTH_SHORT).show();
+        }
+
+        promise.resolve(rtmpBuilder.isStreaming());
+    }
+
+
+    @ReactMethod
+    public void startStream(String rtmpUrl, Promise promise ) {
+        if (isSurfaceCreated) {
+            url = rtmpUrl;
+            if (rtmpBuilder != null && !rtmpBuilder.isStreaming() && rtmpBuilder.prepareAudio() && rtmpBuilder.prepareVideo(width, height, fps, bitRate, hardwareRotation, rotation)) {
                 rtmpBuilder.startStream(rtmpUrl);
             } else {
                 Toast.makeText(getReactApplicationContext(), "Failed to preparing RTMP builder.", Toast.LENGTH_SHORT).show();

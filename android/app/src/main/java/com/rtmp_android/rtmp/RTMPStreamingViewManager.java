@@ -8,10 +8,6 @@ import android.view.View;
 import com.facebook.react.uimanager.SimpleViewManager;
 import com.facebook.react.uimanager.ThemedReactContext;
 
-/**
- * Created by fitra on 06/07/17.
- */
-
 public class RTMPStreamingViewManager extends SimpleViewManager<View> implements SurfaceHolder.Callback {
     private RTMPSurfaceView surfaceView;
     private SurfaceHolder surfaceHolder;

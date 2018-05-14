@@ -33,8 +33,16 @@ export default class SampleApp extends Component {
     return success;
   }
 
-  onSettingButtonPressed() {
-    //
+  async switchCamera() {
+    const success = await NativeRTMPModule.switchCamera();
+    return success;
+  }
+
+  async onSettingButtonPressed() {
+    const success = await NativeRTMPModule.changeSettings({ width: '300'});
+    console.log('mikle', NativeRTMPModule)
+    return success;
+    
   }
 
   onSwitchButtonPressed() {
