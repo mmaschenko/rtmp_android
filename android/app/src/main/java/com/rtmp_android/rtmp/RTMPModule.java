@@ -7,6 +7,7 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.WritableMap;
 import com.pedro.builder.RtmpBuilder;
 
 
@@ -56,24 +57,26 @@ public class RTMPModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void changeSettings(JSONObject settings, Promise promise) {
-        // Toast.makeText(getReactApplicationContext(), message, Toast.LENGTH_SHORT).show();
-        // Toast.makeText(getReactApplicationContext(), Integer.toString(settingsType), Toast.LENGTH_SHORT).show();
-        // MapUtil.toMap(settings);
+    public void changeSettings(ReadableMap settings, Promise promise) {
 
-        // Toast.makeText(getReactApplicationContext(), Integer.toString(settingsType), Toast.LENGTH_SHORT).show();
-        if (rtmpBuilder != null && rtmpBuilder.isStreaming()) {
+        // for (settings.Entry<String, Integer> me : set) {
+        //     System.out.print(me.getKey() + ": ");
+        //     System.out.println(me.getValue());
+        // }
+
+        // Toast.makeText(getReactApplicationContext(), settings.getString("width"), Toast.LENGTH_SHORT).show();
+
+        if (rtmpBuilder != null && rtmpBuilder.isStreaming() && settings != null) {
             rtmpBuilder.stopStream();
-            try{
-            this.startStreamWithParams(url, promise, MapUtil.toMap(settings));
-            } catch (JSONException e) {
-              System.out.println("json error");
-            }
-        } 
-        promise.resolve(rtmpBuilder.isStreaming());
+            this.startStreamWithParams(url, promise, settings);
+        } else if (rtmpBuilder != null && !rtmpBuilder.isStreaming() && settings != null ){
+            // rtmpBuilder.stopStream();
+            this.startStreamWithParams(url, promise, settings);
+        }
+        // promise.resolve(rtmpBuilder.isStreaming());
     }
 
-    public void startStreamWithParams(String rtmpUrl, Promise promise, Map params) {
+    public void startStreamWithParams(String rtmpUrl, Promise promise, ReadableMap params) {
         // Toast.makeText(getReactApplicationContext(), params.get("width"), Toast.LENGTH_SHORT).show();
         
         // for (params.Entry<String, Integer> me : set) {
@@ -83,7 +86,12 @@ public class RTMPModule extends ReactContextBaseJavaModule {
         if (isSurfaceCreated) {
             
             if (rtmpBuilder != null && !rtmpBuilder.isStreaming() && rtmpBuilder.prepareAudio()
-                    && rtmpBuilder.prepareVideo(width, height, fps, bitRate, hardwareRotation, rotation)) {
+                    && rtmpBuilder.prepareVideo(
+                        params.hasKey("width") ? params.getInt("width") : width,
+                        params.hasKey("height") ? params.getInt("height") : height,
+                        params.hasKey("fps") ? params.getInt("fps") : fps,
+                        params.hasKey("bitRate") ? params.getInt("bitRate") : bitRate,
+                        hardwareRotation, rotation)) {
                 rtmpBuilder.startStream(rtmpUrl);
             } else {
                 Toast.makeText(getReactApplicationContext(), "Failed to preparing RTMP builder.", Toast.LENGTH_SHORT)

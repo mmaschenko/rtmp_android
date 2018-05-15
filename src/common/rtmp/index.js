@@ -39,7 +39,14 @@ export default class SampleApp extends Component {
   }
 
   async onSettingButtonPressed() {
-    const success = await NativeRTMPModule.changeSettings({ width: '300'});
+    const success = await NativeRTMPModule.changeSettings({
+      // width: 300,
+      // height: 640,
+      // fps: 30,
+      bitRate: 600 * 1024,
+      // hardwareRotation: false,
+      // rotation: 90
+    });
     console.log('mikle', NativeRTMPModule)
     return success;
     
