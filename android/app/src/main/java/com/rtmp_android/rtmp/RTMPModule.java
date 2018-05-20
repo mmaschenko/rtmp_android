@@ -8,7 +8,8 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
-import com.pedro.builder.RtmpBuilder;
+// import com.pedro.builder.rtmp.RtmpCamera1;
+import com.pedro.rtplibrary.rtmp.RtmpCamera1;
 
 
 import net.ossrs.rtmp.ConnectCheckerRtmp;
@@ -21,7 +22,7 @@ import org.json.JSONException;
 
 public class RTMPModule extends ReactContextBaseJavaModule {
     private static RTMPSurfaceView surfaceView;
-    private static RtmpBuilder rtmpBuilder;
+    private static RtmpCamera1 RtmpCamera1;
     private static boolean isSurfaceCreated;
 
     private String url = "";
@@ -66,14 +67,14 @@ public class RTMPModule extends ReactContextBaseJavaModule {
 
         // Toast.makeText(getReactApplicationContext(), settings.getString("width"), Toast.LENGTH_SHORT).show();
 
-        if (rtmpBuilder != null && rtmpBuilder.isStreaming() && settings != null) {
-            rtmpBuilder.stopStream();
+        if (RtmpCamera1 != null && RtmpCamera1.isStreaming() && settings != null) {
+            RtmpCamera1.stopStream();
             this.startStreamWithParams(url, promise, settings);
-        } else if (rtmpBuilder != null && !rtmpBuilder.isStreaming() && settings != null ){
-            // rtmpBuilder.stopStream();
+        } else if (RtmpCamera1 != null && !RtmpCamera1.isStreaming() && settings != null ){
+            // RtmpCamera1.stopStream();
             this.startStreamWithParams(url, promise, settings);
         }
-        // promise.resolve(rtmpBuilder.isStreaming());
+        // promise.resolve(RtmpCamera1.isStreaming());
     }
 
     public void startStreamWithParams(String rtmpUrl, Promise promise, ReadableMap params) {
@@ -85,14 +86,14 @@ public class RTMPModule extends ReactContextBaseJavaModule {
         // }
         if (isSurfaceCreated) {
             
-            if (rtmpBuilder != null && !rtmpBuilder.isStreaming() && rtmpBuilder.prepareAudio()
-                    && rtmpBuilder.prepareVideo(
+            if (RtmpCamera1 != null && !RtmpCamera1.isStreaming() && RtmpCamera1.prepareAudio()
+                    && RtmpCamera1.prepareVideo(
                         params.hasKey("width") ? params.getInt("width") : width,
                         params.hasKey("height") ? params.getInt("height") : height,
                         params.hasKey("fps") ? params.getInt("fps") : fps,
                         params.hasKey("bitRate") ? params.getInt("bitRate") : bitRate,
                         hardwareRotation, rotation)) {
-                rtmpBuilder.startStream(rtmpUrl);
+                RtmpCamera1.startStream(rtmpUrl);
             } else {
                 Toast.makeText(getReactApplicationContext(), "Failed to preparing RTMP builder.", Toast.LENGTH_SHORT)
                         .show();
@@ -101,7 +102,7 @@ public class RTMPModule extends ReactContextBaseJavaModule {
             Toast.makeText(getReactApplicationContext(), "Surface view is not ready.", Toast.LENGTH_SHORT).show();
         }
 
-        promise.resolve(rtmpBuilder.isStreaming());
+        promise.resolve(RtmpCamera1.isStreaming());
     }
 
 
@@ -109,8 +110,8 @@ public class RTMPModule extends ReactContextBaseJavaModule {
     public void startStream(String rtmpUrl, Promise promise ) {
         if (isSurfaceCreated) {
             url = rtmpUrl;
-            if (rtmpBuilder != null && !rtmpBuilder.isStreaming() && rtmpBuilder.prepareAudio() && rtmpBuilder.prepareVideo(width, height, fps, bitRate, hardwareRotation, rotation)) {
-                rtmpBuilder.startStream(rtmpUrl);
+            if (RtmpCamera1 != null && !RtmpCamera1.isStreaming() && RtmpCamera1.prepareAudio() && RtmpCamera1.prepareVideo(width, height, fps, bitRate, hardwareRotation, rotation)) {
+                RtmpCamera1.startStream(rtmpUrl);
             } else {
                 Toast.makeText(getReactApplicationContext(), "Failed to preparing RTMP builder.", Toast.LENGTH_SHORT).show();
             }
@@ -118,37 +119,37 @@ public class RTMPModule extends ReactContextBaseJavaModule {
             Toast.makeText(getReactApplicationContext(), "Surface view is not ready.", Toast.LENGTH_SHORT).show();
         }
 
-        promise.resolve(rtmpBuilder.isStreaming());
+        promise.resolve(RtmpCamera1.isStreaming());
     }
 
     @ReactMethod
     public void stopStream(Promise promise) {
-        if (rtmpBuilder != null && rtmpBuilder.isStreaming()) {
-            rtmpBuilder.stopStream();
+        if (RtmpCamera1 != null && RtmpCamera1.isStreaming()) {
+            RtmpCamera1.stopStream();
         }
 
-        promise.resolve(!rtmpBuilder.isStreaming());
+        promise.resolve(!RtmpCamera1.isStreaming());
     }
 
     @ReactMethod
     public void switchCamera(Promise promise) {
-        if (rtmpBuilder != null && rtmpBuilder.isStreaming()) {
-            rtmpBuilder.switchCamera();
+        if (RtmpCamera1 != null && RtmpCamera1.isStreaming()) {
+            RtmpCamera1.switchCamera();
         }
 
-        promise.resolve(rtmpBuilder.isStreaming());
+        promise.resolve(RtmpCamera1.isStreaming());
     }
 
     public static void setSurfaceView(RTMPSurfaceView surface) {
         surfaceView = surface;
-        rtmpBuilder = new RtmpBuilder(surfaceView, new ConnectCheckerRtmp() {
+        RtmpCamera1 = new RtmpCamera1(surfaceView, new ConnectCheckerRtmp() {
             @Override
             public void onConnectionSuccessRtmp() {
 
             }
 
             @Override
-            public void onConnectionFailedRtmp() {
+            public void onConnectionFailedRtmp(final String reason) {
 
             }
 
@@ -172,9 +173,9 @@ public class RTMPModule extends ReactContextBaseJavaModule {
     }
 
     public static void destroySurfaceView() {
-        if (rtmpBuilder != null && rtmpBuilder.isStreaming()) {
-            rtmpBuilder.stopStream();
-            rtmpBuilder = null;
+        if (RtmpCamera1 != null && RtmpCamera1.isStreaming()) {
+            RtmpCamera1.stopStream();
+            RtmpCamera1 = null;
         }
 
         isSurfaceCreated = false;
